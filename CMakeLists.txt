@@ -1,0 +1,14 @@
+cmake_minimum_required (VERSION 2.8)
+project (route)
+
+set(EXE_NAME "route")
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "-O3")
+
+file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
+add_executable(${EXE_NAME} ${SRC_FILES})
