@@ -81,9 +81,9 @@ bool Route::route(const int net_id,
     for (size_t i = 0; i < net.route_node_ids_.size(); i++) {
       int id = net.route_node_ids_[i];
       PQNode pq_node(id, 0, 0);
-      priority_queue_.push(pq_node);
+      priority_queue_.push(pq_node);//放到PQ的适当位置，最大则放到堆头
       node_infos_[id].path_cost_ = 0;
-      change_list_.push_back(id);
+      change_list_.push_back(id);//放到尾部
     }
   } else {
     PQNode pq_node(src_node_id, 0, 0);
@@ -96,10 +96,10 @@ bool Route::route(const int net_id,
   int node_id = -1;
   while (!priority_queue_.empty()) {
     do {
-      const PQNode& pq_node = priority_queue_.top();
+      const PQNode& pq_node = priority_queue_.top();//返回头部元素的值
       backward_path_cost = pq_node.path_cost_;
       node_id = pq_node.node_id_;
-      priority_queue_.pop();
+      priority_queue_.pop();//删除堆中最大元素
     } while (node_id == -1);
 
     if (node_id == sink_node_id) {
@@ -116,11 +116,11 @@ bool Route::route(const int net_id,
 
       double path_cost = backward_path_cost;
       path_cost += node_info.cost_ * node_info.acc_cost_;
-      if (node_info.path_cost_ > path_cost) {
+      if (node_info.path_cost_ > path_cost) {//
         node_info.path_cost_ = path_cost;
         node_info.prev_node_id_ = node_id;
         change_list_.push_back(neighbor_id);
-        double cost = path_cost + getFutureCost(neighbor_id, sink_node_id);
+        double cost = path_cost + getFutureCost(neighbor_id, sink_node_id);//邻结点的cost=??
         PQNode pq_node(neighbor_id, path_cost, cost);
         priority_queue_.push(pq_node);
       }
@@ -131,7 +131,7 @@ bool Route::route(const int net_id,
     return false;
   }
 
-  std::vector<int> this_path;
+  std::vector<int> this_path;//回溯
   this_path.push_back(sink_node_id);
   int id = sink_node_id;
   partial_nodes_.insert(id);
@@ -144,10 +144,10 @@ bool Route::route(const int net_id,
     id = prev_id;
     partial_nodes_.insert(id);
   }
-  std::reverse(this_path.begin(), this_path.end());
+  std::reverse(this_path.begin(), this_path.end());//反序
   net.route_node_ids_.insert(net.route_node_ids_.end(),
         this_path.begin(), this_path.end());
-  if (prev_id >= 0) {
+  if (prev_id >= 0) {//可能吗？<
     this_path.insert(this_path.begin(), prev_id);
   }
   for (size_t i = 1; i < this_path.size(); i++) {
@@ -156,10 +156,10 @@ bool Route::route(const int net_id,
 
   //printf("change_list_ = %d\n", change_list_.size());
   //fflush(stdout);
-  for (size_t i = 0; i < change_list_.size(); i++) {
+  for (size_t i = 0; i < change_list_.size(); i++) {//将改变过的结点的信息恢复为初始状态
     int id = change_list_[i];
     node_infos_[id].prev_node_id_ = -1;
-    node_infos_[id].path_cost_ = HUGE_FLOAT;
+    node_infos_[id].path_cost_ = HUGE_FLOAT;//??
   }
   change_list_.clear();
   priority_queue_.clear();
@@ -180,7 +180,7 @@ bool Route::routeOneNet(const int net_id, const double factor) {
   int src_node_id = net.pin_node_ids_[0];
   for (int i = 1; i < net.pin_node_ids_.size(); ++i) {
     int sink_node_id = net.pin_node_ids_[i];
-    bool success = route(net_id, src_node_id, sink_node_id);
+    bool success = route(net_id, src_node_id, sink_node_id);//每个sink返回一个成功信息
     if (!success) {
       return false;
     }
@@ -234,7 +234,7 @@ double Route::getFutureCost(const int cur_node_id, const int target_node_id) {
   Node& target_node = nodes[target_node_id];
   int delta_x = abs(cur_node.end_x_ - target_node.start_x_);
   int delta_y = abs(cur_node.end_y_ - target_node.start_y_);
-
+  //在矩形区域内，离source越近的track越可能产生拥挤
   int cost = 0;
   cost += delta_x / 12;
   cost += delta_y / 18;

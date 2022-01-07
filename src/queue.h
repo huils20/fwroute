@@ -6,7 +6,7 @@
 template<typename _Key, typename _Compare>
 class HeapPriorityQueue {
   public:
-   HeapPriorityQueue() {
+   HeapPriorityQueue() {//头部元素值最大
      compare_ = _Compare();
      elements_ = std::vector<_Key>();
      std::make_heap(elements_.begin(), elements_.end(), compare_);
@@ -34,16 +34,16 @@ class HeapPriorityQueue {
        return false;
    }
 
-   _Key& top() { return elements_.front(); }
+   _Key& top() { return elements_.front(); } //??返回的是值
 
    void push(const _Key& key)
    {
-     elements_.push_back(key);
-     std::push_heap(elements_.begin(), elements_.end(), compare_);
+     elements_.push_back(key);//添加到最后位置
+     std::push_heap(elements_.begin(), elements_.end(), compare_);//把新加入的元素放到堆的适当位置
    }
 
    void pop() {
-     std::pop_heap(elements_.begin(), elements_.end(), compare_);
+     std::pop_heap(elements_.begin(), elements_.end(), compare_);//取出最大元素并在堆中删除
      elements_.pop_back();
    }
 
