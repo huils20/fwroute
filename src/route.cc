@@ -120,7 +120,7 @@ bool Route::route(const int net_id,
         node_info.path_cost_ = path_cost;
         node_info.prev_node_id_ = node_id;
         change_list_.push_back(neighbor_id);
-        double cost = path_cost + getFutureCost(neighbor_id, sink_node_id);//邻结点的cost=??
+        double cost = path_cost + getFutureCost(neighbor_id, sink_node_id);//邻结点的cost=两段
         PQNode pq_node(neighbor_id, path_cost, cost);
         priority_queue_.push(pq_node);
       }
@@ -131,24 +131,24 @@ bool Route::route(const int net_id,
     return false;
   }
 
-  std::vector<int> this_path;//回溯
+  std::vector<int> this_path;//回溯sink路径
   this_path.push_back(sink_node_id);
   int id = sink_node_id;
   partial_nodes_.insert(id);
   int prev_id = -1;
   while (true) {
     prev_id = node_infos_[id].prev_node_id_;
-    if (prev_id < 0 || partial_nodes_.find(prev_id) != partial_nodes_.end())
+    if (prev_id < 0 || partial_nodes_.find(prev_id) != partial_nodes_.end())//前继结点已经在partial_nodes_中了
       break;
     this_path.push_back(prev_id);
     id = prev_id;
     partial_nodes_.insert(id);
   }
-  std::reverse(this_path.begin(), this_path.end());//反序
+  std::reverse(this_path.begin(), this_path.end());//s--k，或者
   net.route_node_ids_.insert(net.route_node_ids_.end(),
         this_path.begin(), this_path.end());
-  if (prev_id >= 0) {//可能吗？<
-    this_path.insert(this_path.begin(), prev_id);
+  if (prev_id >= 0) {//有common node
+    this_path.insert(this_path.begin(), prev_id);//??
   }
   for (size_t i = 1; i < this_path.size(); i++) {
     net.route_edges_.emplace_back(this_path[i - 1], this_path[i]);
@@ -159,7 +159,7 @@ bool Route::route(const int net_id,
   for (size_t i = 0; i < change_list_.size(); i++) {//将改变过的结点的信息恢复为初始状态
     int id = change_list_[i];
     node_infos_[id].prev_node_id_ = -1;
-    node_infos_[id].path_cost_ = HUGE_FLOAT;//??
+    node_infos_[id].path_cost_ = HUGE_FLOAT;//从source到当前
   }
   change_list_.clear();
   priority_queue_.clear();
@@ -186,7 +186,7 @@ bool Route::routeOneNet(const int net_id, const double factor) {
     }
   }
 
-  partial_nodes_.clear();
+  partial_nodes_.clear();//存的是整个net用到的结点
   updateNetCost(net_id, factor, 1);
   return true;
 }

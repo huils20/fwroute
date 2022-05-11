@@ -26,7 +26,7 @@ class PQNodeCompare {
     //return na.cost_ > nb.cost_;
     return na.cost_ - nb.cost_ >=  EPSILON ||
            (fabs(nb.cost_ - na.cost_) < EPSILON &&
-            nb.path_cost_ > na.path_cost_);
+            nb.path_cost_ > na.path_cost_); //感觉有问题啊？？
   }
 };
 
